@@ -28,11 +28,8 @@ public class Search extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		conf.set("test", "123");
-		int length=args.length;
-		conf.setInt("length",length);
-		ArrayList<String> argsList=new ArrayList<String>();
-		for(int i=2;i<args.length;i++)
+		ArrayList<String> argsList = new ArrayList<String>();
+		for (int i = 2; i < args.length; i++)
 			argsList.add(args[i]);
 		String[] arr = argsList.toArray(new String[argsList.size()]);
 		conf.setStrings("argsList", arr);
@@ -61,21 +58,19 @@ public class Search extends Configured implements Tool {
 		public void map(LongWritable offset, Text lineText, Context context)
 				throws IOException, InterruptedException {
 			context.getInputSplit();
-			String merge;
 			// Parsing the input file path
 			String line = lineText.toString();
-			String[] seperate_line=line.split("#####");System.out.println("compare"+seperate_line[0]);
-			String[] further_split=seperate_line[1].split("\t");Configuration conf = context.getConfiguration();
-			String param = conf.get("test");
-			//System.out.println(further_split[0]);System.out.println(further_split[1]);
-			ArrayList<String> argsList = 
-				    new ArrayList<String>(Arrays.asList(conf.getStrings("argsList")));
-			double pass=Double.parseDouble(further_split[1]);System.out.println("pass"+pass);
-			for(int i=0;i<argsList.size();i++){
-				if(seperate_line[0].equals(argsList.get(i)))
-					{context.write(new Text(further_split[0]),new DoubleWritable(pass));
-					System.out.println(new DoubleWritable(pass));
-					}
+			String[] seperate_line = line.split("#####");
+			String[] further_split = seperate_line[1].split("\t");
+			Configuration conf = context.getConfiguration();
+			ArrayList<String> argsList = new ArrayList<String>(
+					Arrays.asList(conf.getStrings("argsList")));
+			double pass = Double.parseDouble(further_split[1]);
+			for (int i = 0; i < argsList.size(); i++) {
+				if (seperate_line[0].equals(argsList.get(i))) {
+					context.write(new Text(further_split[0]),
+							new DoubleWritable(pass));
+				}
 			}
 		}
 	}
@@ -85,13 +80,11 @@ public class Search extends Configured implements Tool {
 
 		public void reduce(Text word, Iterable<DoubleWritable> values,
 				Context context) throws IOException, InterruptedException {
-			double sum=0;
-			System.out.println("Reducer");for ( DoubleWritable count  : values) {
-	            sum  += count.get();
-	         }
+			double sum = 0;
+			for (DoubleWritable count : values) {
+				sum += count.get();
+			}
 			context.write(word, new DoubleWritable(sum));
 		}
 	}
-
-
 }
