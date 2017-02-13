@@ -30,14 +30,16 @@ public class TermFrequency extends Configured implements Tool {
    }
 
    public int run( String[] args) throws  Exception {
-      Job job  = Job .getInstance(getConf(), " wordcount ");
+	  // Creating an Object for Job
+      Job job  = Job .getInstance(getConf(), " TermFrequency ");
       job.setJarByClass( this .getClass());
-
+      // Instantiating input and output File paths
       FileInputFormat.addInputPaths(job,  args[0]);
       FileOutputFormat.setOutputPath(job,  new Path(args[ 1]));
-  
+      // Setting corresponding Mapper and Reducer classes
       job.setMapperClass( Map .class);
       job.setReducerClass( Reduce .class);
+      // Setting Type of Output Key and Value classes
       job.setOutputKeyClass( Text .class);
       job.setOutputValueClass( IntWritable .class);
 
@@ -47,14 +49,14 @@ public class TermFrequency extends Configured implements Tool {
    public static class Map extends Mapper<LongWritable ,  Text ,  Text ,  IntWritable > {
       private final static IntWritable one  = new IntWritable( 1);
       private Text word  = new Text();
-
+      // Instantiating Pattern
       private static final Pattern WORD_BOUNDARY = Pattern .compile("\\s*\\b\\s*");
 
       public void map( LongWritable offset,  Text lineText,  Context context)
         throws  IOException,  InterruptedException {
     	  context.getInputSplit();
     	  int j=0;
-    	  // Parsing the input file path
+    	  // Getting File path and parsing it to obtain the File Name
     	  String filePathString = ((FileSplit) context.getInputSplit()).getPath().toString(); 
     	  for(int i=filePathString.length()-1;i>=0;i--){
     		  if(filePathString.charAt(i)=='/')
@@ -63,12 +65,13 @@ public class TermFrequency extends Configured implements Tool {
     	 System.out.println(filePathString.substring(j, filePathString.length())); 
     	  String line  = lineText.toString();
          Text currentWord  = new Text();
-
+         // Appending word with ##### as Delimiter Followed by File Name
          for ( String word  : WORD_BOUNDARY .split(line)) {
             if (word.isEmpty()) {
                continue;
             }
             currentWord  = new Text(word+"#####"+filePathString.substring(j, filePathString.length()));
+            // Writing output of word formed after concatenating it with File Name and setting count as 1
             context.write(currentWord,one);
          }
       }
@@ -79,9 +82,11 @@ public class TermFrequency extends Configured implements Tool {
       public void reduce( Text word,  Iterable<IntWritable > counts,  Context context)
          throws IOException,  InterruptedException {
          int sum  = 0;double termfreq=0;
+         // Determining count of Corresponding Words
          for ( IntWritable count  : counts) {
             sum  += count.get();
          }
+         // Computing term frequency
          termfreq=1+Math.log(sum)/Math.log(10);
          context.write(word,  new DoubleWritable(termfreq));
       }
