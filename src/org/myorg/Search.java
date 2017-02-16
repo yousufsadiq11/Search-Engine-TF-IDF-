@@ -23,7 +23,7 @@ public class Search extends Configured implements Tool
 	private static final Logger LOG = Logger.getLogger(Search.class);
 
 	public static void main(String[] args) throws Exception 
-	{
+	{	
 		int res = ToolRunner.run(new Search(), args);
 		System.exit(res);
 	}

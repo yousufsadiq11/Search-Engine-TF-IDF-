@@ -63,7 +63,7 @@ public class TermFrequency extends Configured implements Tool {
     			  {j=i+1;break;}
     	  }
     	 System.out.println(filePathString.substring(j, filePathString.length())); 
-    	  String line  = lineText.toString();
+    	  String line  = lineText.toString().toLowerCase();
          Text currentWord  = new Text();
          // Appending word with ##### as Delimiter Followed by File Name
          for ( String word  : WORD_BOUNDARY .split(line)) {
